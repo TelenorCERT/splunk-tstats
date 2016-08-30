@@ -1,0 +1,298 @@
+<form>
+  <label>Event Flow Tracker</label>
+  <description>Tracking information about your sources.</description>
+  <fieldset submitButton="false" autoRun="true">
+    <input type="dropdown" token="index_token" searchWhenChanged="true">
+      <label>Index</label>
+      <default>main</default>
+      <fieldForLabel>title</fieldForLabel>
+      <fieldForValue>title</fieldForValue>
+      <search>
+        <query>|rest /services/data/indexes/ |dedup title</query>
+      </search>
+    </input>
+    <input type="time" token="time_token" searchWhenChanged="true">
+      <label>Time / Period</label>
+      <default>
+        <earliest>-15d</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input type="dropdown" token="sma1" searchWhenChanged="true">
+      <label>Moving Average</label>
+      <default>5</default>
+      <choice value="2">2 days</choice>
+      <choice value="5">5 days</choice>
+      <choice value="7">7 days</choice>
+      <choice value="10">10 days</choice>
+      <choice value="15">15 days</choice>
+      <choice value="20">20 days</choice>
+      <choice value="30">30 days</choice>
+      <choice value="60">60 days</choice>
+      <choice value="90">90 days</choice>
+      <choice value="180">180 days</choice>
+    </input>
+    <input type="link" token="violation" searchWhenChanged="true">
+      <label>Show Violations by Frequency &amp; Value</label>
+      <choice value="show">Show Charts</choice>
+      <choice value="hide">Hide Charts</choice>
+      <default>hide</default>
+      <change>
+        <condition value="show">
+          <set token="show_violation_frequency">true</set>
+          <unset token="hide_violation_frequency">true</unset>
+        </condition>
+        <condition value="hide">
+          <set token="hide_violation_frequency">true</set>
+          <unset token="show_violation_frequency">true</unset>
+        </condition>
+      </change>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <html>
+          <p>
+          <font size="4">Events Timeline</font>
+        </p>
+         The moving average line displays the event count (linear) over time
+        </html>
+    </panel>
+    <panel>
+      <html>
+          <p>
+          <font size="4">Host Timeline</font>
+        </p>
+         The moving average line displays the number of hosts (agents, clients) reporting events over time
+        </html>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <input type="link" token="test1" searchWhenChanged="true">
+        <label></label>
+        <choice value="table">Table</choice>
+        <choice value="chart">Chart</choice>
+        <default>chart</default>
+        <change>
+          <condition value="table">
+            <set token="showTable1">true</set>
+            <unset token="showChart1">true</unset>
+          </condition>
+          <condition value="chart">
+            <set token="showChart1">true</set>
+            <unset token="showTable1">true</unset>
+          </condition>
+        </change>
+      </input>
+      <chart depends="$showChart1$">
+        <search>
+          <query>| tstats local=f prestats=f count as Events WHERE index=$index_token$ earliest=$time_token.earliest$@d latest=$time_token.latest$ BY _time span=1d | trendline sma$sma1$(Events) AS sma | rename sma AS "Moving_Average(5d)"</query>
+          <earliest>$time_token.earliest$</earliest>
+          <latest>$time_token.latest$</latest>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.text">Time - 1d span</option>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.text">Event Count</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.enabled">0</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.overlayFields">Moving_Average(5d)</option>
+        <option name="charting.chart.showDataLabels">minmax</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">all</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.placement">top</option>
+        <!-- Manually added-->
+        <option name="charting.fieldColors">{"Events": 0x8f993e, "Hosts": 0x00ACE7, "Moving_Average(5d)": 0xe73b00}</option>
+      </chart>
+      <table depends="$showTable1$">
+        <title>Table</title>
+        <search>
+          <query>| tstats local=f prestats=f count as Events WHERE index=$index_token$ earliest=$time_token.earliest$@d latest=$time_token.latest$ BY _time span=1d | trendline sma$sma1$(Events) AS sma | rename sma AS "Moving_Average(5d)"</query>
+          <earliest>$time_token.earliest$</earliest>
+          <latest>$time_token.latest$</latest>
+        </search>
+      </table>
+    </panel>
+    <panel>
+      <input type="link" token="test2" searchWhenChanged="true">
+        <label></label>
+        <choice value="table2">Table</choice>
+        <choice value="chart2">Chart</choice>
+        <default>chart2</default>
+        <change>
+          <condition value="table2">
+            <set token="showTable2">true</set>
+            <unset token="showChart2">true</unset>
+          </condition>
+          <condition value="chart2">
+            <set token="showChart2">true</set>
+            <unset token="showTable2">true</unset>
+          </condition>
+        </change>
+      </input>
+      <chart depends="$showChart2$">
+        <search>
+          <query>| tstats local=f prestats=f dc(host) AS Hosts WHERE index=$index_token$ earliest=$time_token.earliest$@d latest=$time_token.latest$ BY _time span=1d | trendline sma$sma1$(Hosts) AS sma | rename sma AS "Moving_Average(5d)"</query>
+          <earliest>$time_token.earliest$</earliest>
+          <latest>$time_token.latest$</latest>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.text">Time - 1d span</option>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.text">Host Count</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.enabled">0</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.overlayFields">Moving_Average(5d)</option>
+        <option name="charting.chart.showDataLabels">minmax</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">all</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.placement">top</option>
+        <!-- Manually added-->
+        <option name="charting.fieldColors">{"Events": 0x8f993e, "Hosts": 0x00ACE7, "Moving_Average(5d)": 0xe73b00}</option>
+      </chart>
+      <table depends="$showTable2$">
+        <title>Table</title>
+        <search>
+          <query>| tstats local=f prestats=f dc(host) AS Hosts WHERE index=$index_token$ earliest=$time_token.earliest$@d latest=$time_token.latest$ BY _time span=1d | trendline sma$sma1$(Hosts) AS sma | rename sma AS "Moving_Average(5d)"</query>
+          <earliest>$time_token.earliest$</earliest>
+          <latest>$time_token.latest$</latest>
+        </search>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel depends="$show_violation_frequency$">
+      <title>Clock Skew violations by frequency</title>
+      <chart>
+        <title>The moving average line should be kept steady</title>
+        <search>
+          <query>| tstats local=f prestats=f count WHERE index=$index_token$ BY _indextime, _time span=1s
+			| eval th=3600
+			| eval diff=abs(_indextime-_time)
+			| eval high=if(diff&gt;th,count,0)
+			| timechart span=1h cont=t sum(high) AS count | fillnull value=0 count | trendline sma24(count) AS "Moving_Average(24h)"| rename count AS "Clock skewed (&gt;1h, &lt;-1h)"</query>
+          <earliest>$time_token.earliest$</earliest>
+          <latest>$time_token.latest$</latest>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.text">Time - 1h span</option>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.text">Event Count</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.enabled">0</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart">line</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">connect</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">all</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.placement">top</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel depends="$show_violation_frequency$">
+      <title>Clock Skew violations by actual value (indexed - extracted time)</title>
+      <chart>
+        <title>The median time should be kept steady and below the threshold</title>
+        <search>
+          <query>| tstats local=f prestats=f count WHERE index=$index_token$ BY _indextime, _time span=1s
+		| eval diff=_indextime-_time
+		| fields - count
+		| timechart span=1h cont=t avg(diff) AS "Average", median(diff) As "Median" | eval th=3600 
+		| rename th AS "Threshold(1h)"</query>
+          <earliest>$time_token.earliest$</earliest>
+          <latest>$time_token.latest$</latest>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.text">Time - 1h span</option>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.text">Clock Skew (sec)</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.enabled">0</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart">line</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">connect</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">all</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.placement">top</option>
+        <!-- Manually added-->
+        <option name="charting.fieldColors">{"Average": 0xcceefa}</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Reporting Hosts - Last 15 days</title>
+      <table>
+        <title>The number of days mising displays the the difference between the current date and the last time an event was seen</title>
+        <search>
+          <query>| tstats local=f prestats=f count AS Events WHERE index=$index_token$ earliest=$time_token.earliest$ latest=$time_token.latest$ BY host, _time | rex field=host "(?&lt;domain&gt;[^\\\]+)"  | stats sum(Events) as Events, dc(host) AS Hosts, max(_time) as _time by domain    | eval miss = round((now() - _time)/86400)       | convert ctime(_time) timeformat="%Y-%m-%d %H:%M:%S" | sort - Events | eval Events=case(Events&gt;1000000000000, "More than a Quadrillion! \m/", Events&gt;1000000000, round(Events/1000000000)."T", Events&gt;1000000000, round(Events/1000000000)."B", Events&gt;1000000, round(Events/1000000)."M", Events&gt;1000, round(Events/1000)."K", 1=1, Events) | rename _time -&gt; "Last seen", domain -&gt; "Domain/Host", miss AS "Days Missing"</query>
+          <earliest>$time_token.earliest$</earliest>
+          <latest>$time_token.latest$</latest>
+        </search>
+        <option name="count">100</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="rowNumbers">true</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+</form>

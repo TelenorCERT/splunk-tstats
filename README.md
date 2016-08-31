@@ -1,15 +1,28 @@
 # splunk-tstats
 Speeding up incident response using Splunk.
-To Achieve Warp Speed.
 
+The path to achieve *Warp Speed*.
+
+# IOC scanner
+
+Do you have any logs with this IOC (IP or HASH)?
+
+The IOC scanner is not a finished product you can just install, but a few methods to solve a common problem. Your sources are telling you that this IOC is bad.
+
+How to tell if the IOC is in any of your logs without searching in every index for the IOC.
+
+- Creating a lookuptable of all index-sourcetype-field combinations that contain an IP or HASH.
+- Create a Dashboard that only search those combinations for the IOC.
+
+With a very large Splunk platform, this is a time saver!
 
 # Event Flow Tracker
 
 Do you really know where your log events are?
-This Dashboard is using tsats and splunk to visualize incoming log events to your indexes. 
 
-Using tstats to do the heavy lifting, this Splunk dashbard should be loading at
-warp speed. Even if you have a billion events to parse in your index. 
+This APP includes a Dashboard that uses tstats to visualize incoming log events
+to your indexes. This is more like a practical guide to tstats and the use of
+already available metadata instead of fetching all events from disk.
 
 ## Introduction to tstats
 

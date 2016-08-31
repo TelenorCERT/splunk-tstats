@@ -1,5 +1,4 @@
-# splunk-tstats
-Speeding up incident response using Splunk.
+# Speeding up incident response using Splunk.
 
 The path to achieve *Warp Speed*.
 

@@ -1,0 +1,75 @@
+<form>
+  <label>IOC Scan</label>
+  <row>
+    <panel>
+      <input type="dropdown" token="TYPE">
+        <label>Type</label>
+        <choice value="ipv4">IPv4</choice>
+        <choice value="sha1">SHA1</choice>
+        <choice value="md5">MD5</choice>
+        <default>ipv4</default>
+        <change>
+          <set token="TYPE_label">$label$</set>
+        </change>
+      </input>
+      <input type="time" token="TIME">
+        <label>Time Range</label>
+        <default>
+          <earliest>-1h</earliest>
+          <latest>now</latest>
+        </default>
+      </input>
+      <input type="text" token="IOC">
+        <label>IOC Value</label>
+      </input>
+      <input type="checkbox" token="IDX" searchWhenChanged="false">
+        <label>Indexes</label>
+        <search>
+          <query>| inputlookup list-of-indexes.csv | sort title</query>
+        </search>
+        <fieldForLabel>title</fieldForLabel>
+        <fieldForValue>title</fieldForValue>
+        <default>index1,index2,index3</default>
+<delimiter>,</delimiter>     
+      </input>
+    </panel>
+  </row>
+  <row>
+    <panel depends="$IOC$">
+      <table>
+        <title>Results for $TYPE_label$ $IOC$</title>
+        <search>
+          <query>[ | inputlookup $TYPE$_fields.csv | eval IDX=split("$IDX$",",") | where index=IDX | eval IOC="$IOC$" | eval field=field."=".IOC | fields - IDX, IOC | format | rex mode=sed field=search "s/field=\"//g"  | rex mode=sed field=search "s/\"//g" | rex mode=sed field=search "s/=(\S+)/=\"\1\"/g"] earliest=$TIME.earliest$ latest=$TIME.latest$ | eval index=index."#".sourcetype | chart count, sparkline by index | rex field=index "^(?&lt;index&gt;\S+)#(?&lt;sourcetype&gt;\S+)" | lookup $TYPE$_fields.csv index, sourcetype | eval sep="=$IOC$ OR "
+| eval dd=mvjoin(field, sep) | eval dd="index=".index." sourcetype=".sourcetype." (".dd."=$IOC$) | highlight $IOC$" | sort - count</query>
+          <earliest>-15m</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="fields">index,sourcetype,field,count,sparkline</option>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+        <option name="dataOverlayMode">heatmap</option>
+        <option name="drilldown">row</option>
+        <option name="count">100</option>
+        <format type="sparkline" field="sparkline">
+          <option name="type">bar</option>
+          <option name="height">100px</option>
+          <option name="barColor">#5379AF</option>
+          <option name="barWidth">5px</option>
+        </format>
+        <format field="sparkline" type="sparkline">
+          <option name="barWidth">5px</option>
+          <option name="type">bar</option>
+          <option name="height">100px</option>
+          <option name="barColor">#5379AF</option>
+        </format>
+        <drilldown>
+          <link target="_blank">
+            <![CDATA[
+          /app/search/search?q=search $row.dd$&earliest=$earliest$&latest=$latest$
+       ]]>
+          </link>
+        </drilldown>
+      </table>
+    </panel>
+  </row>
+</form>

@@ -1,19 +1,8 @@
 # Speeding up incident response using Splunk.
 
-The path to achieve *Warp Speed*.
+The path to *Warp Speed* incident response.
 
-# IOC scanner
-
-Do you have any logs with this IOC (IP or HASH)?
-
-The IOC scanner is not a finished product you can just install, but a few methods to solve a common problem. Your sources are telling you that this IOC is bad.
-
-How to tell if the IOC is in any of your logs without searching in every index for the IOC.
-
-- Creating a lookuptable of all index-sourcetype-field combinations that contain an IP or HASH.
-- Create a Dashboard that only search those combinations for the IOC.
-
-With a very large Splunk platform, this is a time saver!
+It might also be basic Splunk methods we would like to share.
 
 # Event Flow Tracker
 
@@ -23,39 +12,25 @@ This APP includes a Dashboard that uses tstats to visualize incoming log events
 to your indexes. This is more like a practical guide to tstats and the use of
 already available metadata instead of fetching all events from disk.
 
-## Introduction to tstats
+If your data is within the reach of tstats, you should consider using that
+instead of normal searches for your dashboards.
 
-The tstats command is used to perform statistical queries on indexed fields in
-Splunk. These can be normal indexed fields like host, source, sourcetype,
-punct, _time and _indextime, but also datamodels.
-
-### Basic usage
-If you are running Splunk on your laptop and wants to count some events in an index, you can use the *| stats count* command. 
-
-In this example there are 100 million events in *index=main* and the result was ready in 42 seconds.
-
-```
-index=main |stats count
-```
+Would you waste The Analysts time?
 
 
-With tstats, you collect the data from the tsidx-file in the bucket instead of retrieving all events from disk.  The result was ready in less than a second!
+# IOC scanner
 
-```
-|tstats count WHERE index=main
-```
+IOC, Indicator of compromise.
 
-### tstats and time
-These two will result in 168 events (There are 168 hours in 7 days). In our example, we scanned 3.011.776.384 events in 4.183 seconds.
- 
-Create a table with results
-```
-|tstats count WHERE index=main earliest=-7d@d latest=@d BY _time span=1h
-```
+While our friend, The Analyst, have a great amount of knowledge, it is
+impossible to follow everything the rest of the enterprise do.
 
-Use prestats=true when you need to pipe the result to a command that requires the prstats format. chart and timechart are common examples.
-```
-|tstats prestats=true count WHERE index=main earliest=-7d@d latest=@d BY _time span=1h |timechart span=1h count 
-```
+An IOC scanner, will speed the work looking for known bad IPaddresses and
+Hashes in both known and unknown logs in Splunk.
+
+This is more like a story to get to the great results, and it might just need a
+SPL ninja to get right from the search to the result. The limitations are everywhere.
+
+
 
 

@@ -1,8 +1,3 @@
-# Speeding up incident response using Splunk.
-
-The path to achieve *Warp Speed*.
-
-
 # Event Flow Tracker
 
 Do you really know where your log events are?

@@ -2,9 +2,15 @@
 
 Do you really know where your log events are?
 
-This APP includes a Dashboard that uses tstats to visualize incoming log events
-to your indexes. This is more like a practical guide to tstats and the use of
-already available metadata instead of fetching all events from disk.
+We index a lot of data that we need if there should be a security incident. If the data is not there when we need it, it would kind of make us look bad.
+But more importantly, it would make incident response a lot harder than it needs to be.
+
+Monitoring that the streams of events you expect to have in Splunk, actually are there, is very very important.
+
+This APP includes a Dashboard that uses tstats to visualize incoming log events to your indexes.
+We have only included very basic seaches and it will be more like a practical guide to tstats.
+
+How to use already available metadata instead of fetching all events from disk.
 
 ## Introduction to tstats
 

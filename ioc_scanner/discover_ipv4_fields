@@ -1,7 +1,7 @@
 The saved search looking for IPaddresses will look something like this. You can quickly see that it is easy to replicate this and add other IOCs like hashes.
 
 [discover_ipv4_fields]
-search = | tstats local=f count where ( [ | inputlookup list-of-indexes.csv | rename title AS index | format] ) NOT (sourcetype="*-too_small") by index, sourcetype \
+search = | tstats local=f count where index=_* OR index=* NOT (sourcetype="*-too_small") by index, sourcetype \
 | map maxsearches=9999 search="search earliest=-2h@h latest=now index=$index$ sourcetype=$sourcetype$ \
 | fields - _* \
 | rename * AS $index$#$sourcetype$#*\
@@ -15,7 +15,7 @@ search = | tstats local=f count where ( [ | inputlookup list-of-indexes.csv | re
 
 
 [discover_ipv4_pub_fields]
-search = | tstats local=f count where ( [ | inputlookup list-of-indexes.csv | rename title AS index | format] ) NOT (sourcetype="*-too_small") by index, sourcetype \
+search = | tstats local=f count where index=_* OR index=* NOT (sourcetype="*-too_small") by index, sourcetype \
 | map maxsearches=9999 search="search earliest=-2h@h latest=now index=$index$ sourcetype=$sourcetype$ \
 | fields - _* \
 | rename * AS $index$#$sourcetype$#*\

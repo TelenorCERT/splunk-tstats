@@ -242,7 +242,7 @@
           <query>| tstats local=f prestats=f count WHERE index=$index_token$ BY _indextime, _time span=1s
 		| eval diff=_indextime-_time
 		| fields - count
-		| timechart span=1h cont=t avg(diff) AS "Average", median(diff) As "Median" | eval th=3600 
+		| timechart span=1h cont=t avg(diff) AS "Average", median(diff) As "Median" | eval th=3600
 		| rename th AS "Threshold(1h)"</query>
           <earliest>$time_token.earliest$</earliest>
           <latest>$time_token.latest$</latest>

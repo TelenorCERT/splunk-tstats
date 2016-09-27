@@ -1,4 +1,7 @@
-The saved search looking for IPaddresses will look something like this. You can quickly see that it is easy to replicate this and add other IOCs like hashes.
+# The IOC scan saved search
+
+The saved search looking for IPaddresses will look something like this.
+You can quickly see that it is easy to replicate this and add other IOCs like hashes.
 
 [discover_ipv4_fields]
 search = | tstats local=f count where index=_* OR index=* NOT (sourcetype="*-too_small") by index, sourcetype \
@@ -13,6 +16,10 @@ search = | tstats local=f count where index=_* OR index=* NOT (sourcetype="*-too
 | outputlookup ipv4_fields.csv
 
 
+
+## Blacklisting
+
+If we want to consider a blacklist, we can add that as a lookup table at the end.
 
 [discover_ipv4_pub_fields]
 search = | tstats local=f count where index=_* OR index=* NOT (sourcetype="*-too_small") by index, sourcetype \
@@ -29,11 +36,9 @@ search = | tstats local=f count where index=_* OR index=* NOT (sourcetype="*-too
 
 
 
-
-
 ipv4_pub_fields_blacklist
 
 This would be a blacklist of index-sourcetype-field combinations that you don't want to search.
 
-comment				field			index		sourcetype
-Another duplicate field		source_ip_address	main		webserver_logs
+comment				             field			        index   sourcetype
+"Another duplicate field"		source_ip_address	main		webserver_logs
